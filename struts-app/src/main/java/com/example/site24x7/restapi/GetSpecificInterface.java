@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.example.action.DatabaseConfig;
+import com.fasterxml.jackson.annotation.JsonMerge;
 
 import java.sql.*;
 import org.json.JSONObject;
@@ -66,42 +67,46 @@ public class GetSpecificInterface {
 		
 			query = """
 					SELECT 
-					    id,
-					    FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(collected_time) / ?) * ?) AS time_slot,
-					    
-					    AVG(in_traffic) AS avg_in_traffic,
-					    MAX(in_traffic) AS max_in_traffic,
-					    MIN(in_traffic) AS min_in_traffic,
-					    
-					    AVG(out_traffic) AS avg_out_traffic,
-					    MAX(out_traffic) AS max_out_traffic,
-					    MIN(out_traffic) AS min_out_traffic,
-					    
-					    AVG(in_error) AS avg_in_error,
-					    MAX(in_error) AS max_in_error,
-					    MIN(in_error) AS min_in_error,
-					    COUNT(in_error) AS count_in_error,  
-					    
-					    AVG(out_error) AS avg_out_error,
-					    MAX(out_error) AS max_out_error,
-					    MIN(out_error) AS min_out_error,
-					    COUNT(out_error) AS count_out_error, 
-					    
-					    AVG(in_discard) AS avg_in_discard,
-					    MAX(in_discard) AS max_in_discard,
-					    MIN(in_discard) AS min_in_discard,
-					    COUNT(in_discard) AS count_in_discard,  
+				    id,
+				    FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(collected_time) / ?) * ?) AS time_slot,
+				    
+				    -- Traffic Statistics
+				    AVG(in_traffic) AS avg_in_traffic,
+				    MAX(in_traffic) AS max_in_traffic,
+				    MIN(in_traffic) AS min_in_traffic,
+				    
+				    AVG(out_traffic) AS avg_out_traffic,
+				    MAX(out_traffic) AS max_out_traffic,
+				    MIN(out_traffic) AS min_out_traffic,
+				
+				    -- Error Statistics
+				    AVG(in_error) AS avg_in_error,
+				    MAX(in_error) AS max_in_error,
+				    MIN(in_error) AS min_in_error,
+				    COUNT(CASE WHEN in_error > 0 THEN 1 END) AS count_in_error,  
+				
+				    AVG(out_error) AS avg_out_error,
+				    MAX(out_error) AS max_out_error,
+				    MIN(out_error) AS min_out_error,
+				    COUNT(CASE WHEN out_error > 0 THEN 1 END) AS count_out_error, 
+				
+				    -- Discard Statistics
+				    AVG(in_discard) AS avg_in_discard,
+				    MAX(in_discard) AS max_in_discard,
+				    MIN(in_discard) AS min_in_discard,
+				    COUNT(CASE WHEN in_discard > 0 THEN 1 END) AS count_in_discard,  
+				
+				    AVG(out_discard) AS avg_out_discard,
+				    MAX(out_discard) AS max_out_discard,
+				    MIN(out_discard) AS min_out_discard,
+				    COUNT(CASE WHEN out_discard > 0 THEN 1 END) AS count_out_discard
+				
+				FROM inter_details
+				WHERE collected_time >= NOW() - INTERVAL ? HOUR 
+				AND id = ?
+				GROUP BY id, time_slot
+				ORDER BY id, time_slot;
 
-					    
-					    AVG(out_discard) AS avg_out_discard,
-					    MAX(out_discard) AS max_out_discard,
-					    MIN(out_discard) AS min_out_discard,
-					 	COUNT(out_discard) AS count_out_discard
-					
-					FROM inter_details
-					WHERE collected_time >= NOW() - INTERVAL ? HOUR and id = ?
-					GROUP BY id, time_slot
-					ORDER BY id, time_slot;
 										""";
 		
 		JSONObject json = new JSONObject();
@@ -144,9 +149,17 @@ public class GetSpecificInterface {
 
             jsonArr.put(data);
         }
-        json.put("insight", jsonArr);
-        json.put("cassandra", CassandraSpecificInterface.getCassandraData(id, interval));
+        if (interval.equals("1h") || interval.equals("6h")) {
+        	json.put("data", jsonArr);
+
+        }
+        else if(interval.equals("1w") || interval.equals("30d") || interval.equals("12h") || interval.equals("1d")) {
+            json.put("data", JSONMerger.merge(jsonArr,CassandraSpecificInterface.getCassandraData(id, interval) ,interval));
+
+        }
         
+//        json.put("insight", jsonArr);
+//        json.put("cassandra", CassandraSpecificInterface.getCassandraData(id, interval));
         con.close();
         ps.close();
         rs.close();
@@ -155,11 +168,7 @@ public class GetSpecificInterface {
 		
 		
 	}
-	
-	
-	
-	
-	
+
 	public static JSONObject getCurrentStatus(int id) throws SQLException {
 		String query = """
                 SELECT id, oper_status, admin_status

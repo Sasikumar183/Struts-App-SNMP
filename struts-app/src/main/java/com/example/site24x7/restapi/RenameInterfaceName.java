@@ -42,6 +42,7 @@ public class RenameInterfaceName extends ActionSupport implements ServletRequest
             int rows = ps.executeUpdate();
             String message = (rows == 1) ? "Updated" : "No interface with that id";
             JSONObject res = new JSONObject();
+            res.put("message", message);
             String jsonString = res.toString(4);
             input = new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8));
 

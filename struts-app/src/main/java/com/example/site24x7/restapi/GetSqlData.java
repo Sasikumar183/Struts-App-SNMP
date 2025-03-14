@@ -45,6 +45,7 @@ public class GetSqlData {
                 int interfaceId = mysqlResultSet.getInt("id");
 
                 record.put("interface_id", interfaceId);
+                record.put("interface_name", mysqlResultSet.getString("interface_name"));
                 record.put("interface_ip", mysqlResultSet.getString("IP"));
                 record.put("avg_in_traffic", mysqlResultSet.getDouble("avg_in_traffic"));
                 record.put("avg_out_traffic", mysqlResultSet.getDouble("avg_out_traffic"));

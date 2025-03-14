@@ -23,7 +23,7 @@ public class CassandraSpecificInterface {
 		if (interval.equals("12h")) {
 		    inter = now.minusSeconds(12 * 3600);  
 		} 
-		else if (interval.equals("24h")) {
+		else if (interval.equals("1d")) {
 		    inter = now.minusSeconds(24 * 3600);  
 		} 
 		else if (interval.equals("1w")) {
@@ -49,7 +49,7 @@ public class CassandraSpecificInterface {
         
         CqlSession session = DatabaseConfig.getCassandraSession();
         
-        ResultSet resultSet = session.execute(session.prepare(query).bind(timestampStr, 1));
+        ResultSet resultSet = session.execute(session.prepare(query).bind(timestampStr, id));
 
         JSONArray jsonArray = new JSONArray();
         for (Row row : resultSet) {
@@ -97,7 +97,15 @@ public class CassandraSpecificInterface {
             jsonArray.put(jsonObject);
         }
         
+        if(interval.equals("30d") || interval.equals("1w")) {
+        	jsonArray =  CassandraDataAggregator.getAggregated(jsonArray, interval);
+        }
 		return jsonArray;
+	}
+	
+	public static void main(String args[]) {
+		JSONArray res = getCassandraData(3,"1d");
+		System.out.println(res.toString(4));
 	}
 	
 	

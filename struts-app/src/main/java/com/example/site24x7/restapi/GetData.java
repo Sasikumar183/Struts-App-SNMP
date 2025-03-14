@@ -54,10 +54,12 @@ public class GetData extends ActionSupport implements ServletRequestAware{
         String id = request.getParameter("id");
         if (id != null && !id.isEmpty()) {
             System.out.println("Parameter contains the search string!");
-            JSONObject generalDetails = GetSpecificInterface.getGeneralDetails(Integer.parseInt(id));
-            
+            JSONObject generalDetails = new JSONObject();
+            JSONObject general = GetSpecificInterface.getGeneralDetails(Integer.parseInt(id));
             JSONObject interfaceInsight = GetSpecificInterface.getInsights(Integer.parseInt(id),time);
             JSONObject status = GetSpecificInterface.getCurrentStatus(Integer.parseInt(id));
+            
+            generalDetails.append("general", general);
             generalDetails.append("status",status);
             generalDetails.append("data", interfaceInsight);
             System.out.println(generalDetails);
@@ -70,6 +72,7 @@ public class GetData extends ActionSupport implements ServletRequestAware{
         StringBuilder query = new StringBuilder(
             "SELECT " +
             "inter_details.id, " +
+            "interface.interface_name,"+
             "interface.IP, " +
             "AVG(in_traffic) AS avg_in_traffic, " +
             "AVG(out_traffic) AS avg_out_traffic, " +

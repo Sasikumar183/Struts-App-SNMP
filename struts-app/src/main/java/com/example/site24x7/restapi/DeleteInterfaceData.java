@@ -55,6 +55,7 @@ public class DeleteInterfaceData extends ActionSupport implements ServletRequest
             int rows = ps.executeUpdate();
             String message = (rows >=0) ? "Deleted Successful" : "No interface with that id";
             JSONObject res = new JSONObject();
+            res.put("message",message);
             String jsonString = res.toString(4);
             input = new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8));
             ps.close();
