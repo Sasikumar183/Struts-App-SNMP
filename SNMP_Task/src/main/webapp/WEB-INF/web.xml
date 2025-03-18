@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xmlns="https://jakarta.ee/xml/ns/jakartaee" 
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd" 
+         id="WebApp_ID" version="5.0">
+  
+  <display-name>SNMP_Task</display-name>
+
+  <!-- Welcome Files -->
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+  </welcome-file-list>
+
+  <!-- Context Listener -->
+  <listener>
+    <listener-class>com.example.site24x7.snmp.ArchiveData</listener-class>
+  </listener>
+
+  <!-- GetData Servlet -->
+  <servlet>
+    <description>Retrieves SNMP data</description>
+    <display-name>GetData</display-name>
+    <servlet-name>GetData</servlet-name>
+    <servlet-class>com.example.site24x7.snmp.GetData</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>GetData</servlet-name>
+    <url-pattern>/GetData</url-pattern>
+  </servlet-mapping>
+
+  <!-- StoreData Servlet -->
+  <servlet>
+    <description>Stores SNMP data</description>
+    <display-name>StoreData</display-name>
+    <servlet-name>StoreData</servlet-name>
+    <servlet-class>com.example.site24x7.snmp.StoreData</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>StoreData</servlet-name>
+    <url-pattern>/StoreData</url-pattern>
+  </servlet-mapping>
+
+</web-app>

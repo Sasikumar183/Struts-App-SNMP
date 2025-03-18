@@ -45,6 +45,7 @@ public class GetSqlData {
                 int interfaceId = mysqlResultSet.getInt("id");
 
                 record.put("interface_id", interfaceId);
+                record.put("index", mysqlResultSet.getInt("idx"));
                 record.put("interface_name", mysqlResultSet.getString("interface_name"));
                 record.put("interface_ip", mysqlResultSet.getString("IP"));
                 record.put("avg_in_traffic", mysqlResultSet.getDouble("avg_in_traffic"));
@@ -53,10 +54,6 @@ public class GetSqlData {
                 record.put("avg_out_error", mysqlResultSet.getDouble("avg_out_error"));
                 record.put("avg_in_discard", mysqlResultSet.getDouble("avg_in_discard"));
                 record.put("avg_out_discard", mysqlResultSet.getDouble("avg_out_discard"));
-                record.put("count_admin_up", mysqlResultSet.getInt("admin_up"));
-                record.put("count_admin_down", mysqlResultSet.getInt("admin_down"));
-                record.put("count_oper_up", mysqlResultSet.getInt("oper_up"));
-                record.put("count_oper_down", mysqlResultSet.getInt("oper_down"));
 
                 if (statusMap.has(String.valueOf(interfaceId))) {
                     JSONObject statusData = statusMap.getJSONObject(String.valueOf(interfaceId));

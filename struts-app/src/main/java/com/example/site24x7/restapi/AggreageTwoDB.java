@@ -23,11 +23,6 @@ public class AggreageTwoDB {
             if (aggregatedData.containsKey(interfaceId)) {
                 JSONObject existingObj = aggregatedData.get(interfaceId);
                 
-                existingObj.put("count_oper_up", existingObj.optInt("count_oper_up", 0) + obj.optInt("total_oper_up", 0));
-                existingObj.put("count_oper_down", existingObj.optInt("count_oper_down", 0) + obj.optInt("total_oper_down", 0));
-                existingObj.put("count_admin_up", existingObj.optInt("count_admin_up", 0) + obj.optInt("total_admin_up", 0));
-                existingObj.put("count_admin_down", existingObj.optInt("count_admin_down", 0) + obj.optInt("total_admin_down", 0));
-
                 existingObj.put("avg_out_error", existingObj.optDouble("avg_out_error", 0) + obj.optDouble("avg_out_error", 0)/2);
                 existingObj.put("avg_in_discard", existingObj.optDouble("avg_in_discard", 0) + obj.optDouble("avg_in_discard", 0)/2);
                 existingObj.put("avg_out_discard", existingObj.optDouble("avg_out_discard", 0) + obj.optDouble("avg_out_discard", 0)/2);

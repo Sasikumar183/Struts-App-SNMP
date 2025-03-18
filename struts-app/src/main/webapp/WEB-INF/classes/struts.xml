@@ -38,6 +38,13 @@
             </result>
         </action>
         
+        <action name="getip" class="com.example.site24x7.restapi.GetIPs">
+            <result name="success" type="stream">
+                <param name="inputName">input</param>
+                <param name="contentType">text/plain</param>
+            </result>
+        </action>
+        
 	
     </package>
 </struts>

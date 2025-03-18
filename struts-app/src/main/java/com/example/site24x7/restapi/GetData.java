@@ -53,7 +53,7 @@ public class GetData extends ActionSupport implements ServletRequestAware{
         
         String id = request.getParameter("id");
         if (id != null && !id.isEmpty()) {
-            System.out.println("Parameter contains the search string!");
+            //System.out.println("Parameter contains the search string!");
             JSONObject generalDetails = new JSONObject();
             JSONObject general = GetSpecificInterface.getGeneralDetails(Integer.parseInt(id));
             JSONObject interfaceInsight = GetSpecificInterface.getInsights(Integer.parseInt(id),time);
@@ -67,36 +67,27 @@ public class GetData extends ActionSupport implements ServletRequestAware{
 
         }
         
+        
+        
         //For dashboard
         else {
-        StringBuilder query = new StringBuilder(
-            "SELECT " +
-            "inter_details.id, " +
-            "interface.interface_name,"+
-            "interface.IP, " +
-            "AVG(in_traffic) AS avg_in_traffic, " +
-            "AVG(out_traffic) AS avg_out_traffic, " +
-            "AVG(in_error) AS avg_in_error, " +
-            "AVG(out_error) AS avg_out_error, " +
-            "AVG(in_discard) AS avg_in_discard, " +
-            "AVG(out_discard) AS avg_out_discard, " +
-            "COUNT(CASE WHEN admin_status = 1 THEN 1 END) AS admin_up, " +
-            "COUNT(CASE WHEN admin_status = 2 THEN 1 END) AS admin_down, " +
-            "COUNT(CASE WHEN oper_status = 1 THEN 1 END) AS oper_up, " +
-            "COUNT(CASE WHEN oper_status = 2 THEN 1 END) AS oper_down " +
-            "FROM inter_details " +
-            "JOIN interface ON inter_details.id = interface.id " +
-            "WHERE collected_time >= NOW() - INTERVAL " + interval + " ");
-
-        String Cquery = "SELECT interface_id,  avg_in_traffic, avg_out_traffic, " +
-                "avg_in_error, avg_out_error, avg_in_discard, avg_out_discard, " +
-                "count_admin_up, count_admin_down, count_oper_up, count_oper_down " +
-                "FROM snmp.snmp_interface_traffic WHERE hour_slot >= ? GROUP By interface_id order by interace_id ALLOW FILTERING";
-
-
-        query.append("GROUP BY inter_details.id,  interface.IP " +
-                     "ORDER BY inter_details.id;");
-
+        	StringBuilder query = new StringBuilder(
+        		    "SELECT " +
+        		    "    inter_details.id, " +
+        		    "    interface.idx, " +
+        		    "    interface.interface_name, " +
+        		    "    interface.IP, " +
+        		    "    AVG(in_traffic) AS avg_in_traffic, " +
+        		    "    AVG(out_traffic) AS avg_out_traffic, " +
+        		    "    AVG(in_error) AS avg_in_error, " +
+        		    "    AVG(out_error) AS avg_out_error, " +
+        		    "    AVG(in_discard) AS avg_in_discard, " +
+        		    "    AVG(out_discard) AS avg_out_discard " +
+        		    "FROM inter_details " +
+        		    "JOIN interface ON inter_details.id = interface.id " +
+        		    "WHERE collected_time >= NOW() - INTERVAL " + interval + " " +
+        		    "GROUP BY inter_details.id, interface.idx, interface.interface_name, interface.IP;"
+        		);
 
             JSONObject jsonRes,jsonRes2,finalRes;
 			try {
@@ -104,8 +95,12 @@ public class GetData extends ActionSupport implements ServletRequestAware{
 				
 				if (! (time.equals("1h") || time.equals("6h"))){
 					jsonRes2 = GetCassandraData.getData(time);
+					System.out.println("MYSQL");
+					System.out.println(jsonRes.toString(4));
+					System.out.println("Cassandra");
+					System.out.println(jsonRes2.toString(4));
 					finalRes = AggreageTwoDB.getAggregate(jsonRes.getJSONArray("data"), jsonRes2.getJSONArray("data"));
-					String jsonString = finalRes.toString(4);
+					String jsonString = finalRes.toString(4); 
 		            input = new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8));
 				}
 				
@@ -122,6 +117,8 @@ public class GetData extends ActionSupport implements ServletRequestAware{
 			}
         }
 
+        
+        
         return SUCCESS;
 
     }

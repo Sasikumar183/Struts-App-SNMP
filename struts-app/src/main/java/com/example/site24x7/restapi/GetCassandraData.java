@@ -21,9 +21,8 @@ public class GetCassandraData {
         CqlSession session = DatabaseConfig.getCassandraSession();
 		try  {
        	 String Cquery = """
-                    SELECT interface_id, avg_in_traffic, avg_out_traffic, avg_in_error, avg_out_error, 
-                           avg_in_discard, avg_out_discard, count_admin_up, count_admin_down, 
-                           count_oper_up, count_oper_down
+                    SELECT primary_id, avg_in_traffic, avg_out_traffic, avg_in_error, avg_out_error, 
+                           avg_in_discard,avg_out_discard
                     FROM snmp_interface_traffic where hour_slot >= ?
                     ALLOW FILTERING;
                     """;
@@ -37,17 +36,14 @@ public class GetCassandraData {
             Map<Integer, JSONObject> dataMap = new HashMap<>();
 
             for (Row row : resultSet) {
-                int interfaceId = row.getInt("interface_id");
+                int interfaceId = row.getInt("primary_id");
                 double avgInTraffic = row.getDouble("avg_in_traffic");
                 double avgOutTraffic = row.getDouble("avg_out_traffic");
                 double avgInError = row.getDouble("avg_in_error");
                 double avgOutError = row.getDouble("avg_out_error");
                 double avgInDiscard = row.getDouble("avg_in_discard");
                 double avgOutDiscard = row.getDouble("avg_out_discard");
-                int countAdminUp = row.getInt("count_admin_up");
-                int countAdminDown = row.getInt("count_admin_down");
-                int countOperUp = row.getInt("count_oper_up");
-                int countOperDown = row.getInt("count_oper_down");
+               
 
                 JSONObject jsonObj = dataMap.getOrDefault(interfaceId, new JSONObject()
                         .put("interface_id", interfaceId)
@@ -57,10 +53,6 @@ public class GetCassandraData {
                         .put("sum_out_error", 0.0)
                         .put("sum_in_discard", 0.0)
                         .put("sum_out_discard", 0.0)
-                        .put("sum_admin_up", 0)
-                        .put("sum_admin_down", 0)
-                        .put("sum_oper_up", 0)
-                        .put("sum_oper_down", 0)
                         .put("count", 0));
 
                 jsonObj.put("sum_in_traffic", jsonObj.getDouble("sum_in_traffic") + avgInTraffic);
@@ -69,10 +61,6 @@ public class GetCassandraData {
                 jsonObj.put("sum_out_error", jsonObj.getDouble("sum_out_error") + avgOutError);
                 jsonObj.put("sum_in_discard", jsonObj.getDouble("sum_in_discard") + avgInDiscard);
                 jsonObj.put("sum_out_discard", jsonObj.getDouble("sum_out_discard") + avgOutDiscard);
-                jsonObj.put("sum_admin_up", jsonObj.getInt("sum_admin_up") + countAdminUp);
-                jsonObj.put("sum_admin_down", jsonObj.getInt("sum_admin_down") + countAdminDown);
-                jsonObj.put("sum_oper_up", jsonObj.getInt("sum_oper_up") + countOperUp);
-                jsonObj.put("sum_oper_down", jsonObj.getInt("sum_oper_down") + countOperDown);
                 jsonObj.put("count", jsonObj.getInt("count") + 1);
                 dataMap.put(interfaceId, jsonObj);
             }
@@ -89,10 +77,6 @@ public class GetCassandraData {
                 avgObj.put("avg_out_error", jsonObj.getDouble("sum_out_error") / count);
                 avgObj.put("avg_in_discard", jsonObj.getDouble("sum_in_discard") / count);
                 avgObj.put("avg_out_discard", jsonObj.getDouble("sum_out_discard") / count);
-                avgObj.put("total_admin_up", jsonObj.getInt("sum_admin_up")); // SUM
-                avgObj.put("total_admin_down", jsonObj.getInt("sum_admin_down")); // SUM
-                avgObj.put("total_oper_up", jsonObj.getInt("sum_oper_up")); // SUM
-                avgObj.put("total_oper_down", jsonObj.getInt("sum_oper_down")); // SUM
 
                 resultArray.put(avgObj);
             }

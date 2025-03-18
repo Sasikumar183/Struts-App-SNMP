@@ -26,8 +26,8 @@ public class DeleteInterfaceData extends ActionSupport implements ServletRequest
     
     
     String query = "DELETE FROM inter_details where id = ?";
-    String uidQuery="SELECT id FROM snmp.snmp_interface_traffic WHERE interface_id = ? ALLOW FILTERING;";
-    String cqlDeleteQuery ="DELETE FROM snmp.snmp_interface_traffic WHERE id = ?";
+    String uidQuery="SELECT id FROM snmp_interface_traffic WHERE primary_id = ? ALLOW FILTERING;";
+    String cqlDeleteQuery ="DELETE FROM snmp_interface_traffic WHERE id = ?";
     public String execute() {
     	if (!"DELETE".equalsIgnoreCase(request.getMethod())) {
             input = new ByteArrayInputStream("Invalid Request Method".getBytes(StandardCharsets.UTF_8));
